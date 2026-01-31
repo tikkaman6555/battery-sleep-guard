@@ -1,0 +1,9 @@
+{
+  "uuid": "battery-sleep@kkrieg",
+  "name": "Battery Sleep Guard",
+  "description": "Monitors battery level and suspends/hibernates at a threshold.",
+  "icon": "battery",
+  "version": 1,
+  "max-instances": 1,
+  "cinnamon-version": ["5.8", "6.0", "6.2"]
+}

@@ -1,0 +1,69 @@
+{
+  "threshold": {
+    "type": "scale",
+    "default": 15,
+    "min": 1,
+    "max": 50,
+    "step": 1,
+    "units": "%",
+    "description": "Threshold percentage"
+  },
+  "action": {
+    "type": "combobox",
+    "default": "alert",
+    "description": "Action when threshold reached",
+    "options": {
+      "Suspend": "suspend",
+      "Hibernate": "hibernate",
+      "Alert only": "alert"
+    }
+  },
+  "check_interval": {
+    "type": "spinbutton",
+    "default": 30,
+    "min": 5,
+    "max": 300,
+    "step": 1,
+    "units": "sec",
+    "description": "Check interval (seconds)"
+  },
+  "cooldown_minutes": {
+    "type": "spinbutton",
+    "default": 10,
+    "min": 1,
+    "max": 120,
+    "step": 1,
+    "units": "min",
+    "description": "Cooldown after action (minutes)"
+  },
+  "notify": {
+    "type": "checkbox",
+    "default": true,
+    "description": "Show notification before action"
+  },
+  "popup_alert": {
+    "type": "checkbox",
+    "default": false,
+    "description": "Show popup alert before action"
+  },
+  "popup_seconds": {
+    "type": "spinbutton",
+    "default": 20,
+    "min": 5,
+    "max": 120,
+    "step": 1,
+    "units": "sec",
+    "description": "Popup countdown seconds"
+  },
+  "only_discharging": {
+    "type": "checkbox",
+    "default": true,
+    "description": "Only act while discharging"
+  },
+  "fix_deep_sleep": {
+    "type": "button",
+    "description": "Fix deep sleep",
+    "callback": "on_fix_deep_sleep",
+    "tooltip": "Apply the deep sleep fix (requires admin password)."
+  }
+}
