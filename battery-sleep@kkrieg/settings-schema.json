@@ -60,6 +60,29 @@
     "default": true,
     "description": "Only act while discharging"
   },
+  "force_critical": {
+    "type": "checkbox",
+    "default": true,
+    "description": "Force sleep/hibernate at critical threshold when action is Alert only"
+  },
+  "critical_threshold": {
+    "type": "spinbutton",
+    "default": 5,
+    "min": 1,
+    "max": 20,
+    "step": 1,
+    "units": "%",
+    "description": "Critical threshold percentage"
+  },
+  "critical_action": {
+    "type": "combobox",
+    "default": "suspend",
+    "description": "Critical action (used only when action is Alert only)",
+    "options": {
+      "Suspend": "suspend",
+      "Hibernate": "hibernate"
+    }
+  },
   "fix_deep_sleep": {
     "type": "button",
     "description": "Fix deep sleep",

@@ -27,6 +27,9 @@ class BatterySleepApplet extends Applet.TextApplet {
     this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "popup_alert", "popupAlert", this._onSettingsChanged, null);
     this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "popup_seconds", "popupSeconds", this._onSettingsChanged, null);
     this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "only_discharging", "onlyDischarging", this._onSettingsChanged, null);
+    this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "force_critical", "forceCritical", this._onSettingsChanged, null);
+    this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "critical_threshold", "criticalThreshold", this._onSettingsChanged, null);
+    this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "critical_action", "criticalAction", this._onSettingsChanged, null);
 
     this._batteryPath = this._findBatteryPath();
 
@@ -34,6 +37,7 @@ class BatterySleepApplet extends Applet.TextApplet {
     this._popupTimerId = null;
     this._lastClickTimeUs = 0;
     this._lastThreshold = Number(this.threshold || 15);
+    this._lastCriticalThreshold = Number(this.criticalThreshold || 5);
     this._suppressNextAction = false;
 
     this.menuManager = new PopupMenu.PopupMenuManager(this);
@@ -54,6 +58,12 @@ class BatterySleepApplet extends Applet.TextApplet {
     if (currentThreshold !== this._lastThreshold) {
       this._lastActionTime = 0;
       this._lastThreshold = currentThreshold;
+      this._suppressNextAction = true;
+    }
+    const currentCriticalThreshold = Number(this.criticalThreshold || 5);
+    if (currentCriticalThreshold !== this._lastCriticalThreshold) {
+      this._lastActionTime = 0;
+      this._lastCriticalThreshold = currentCriticalThreshold;
       this._suppressNextAction = true;
     }
     this._updateMenuUi();
@@ -224,6 +234,12 @@ class BatterySleepApplet extends Applet.TextApplet {
     return "suspend";
   }
 
+  _normalizedCriticalAction() {
+    const raw = (this.criticalAction || "suspend").toString();
+    const lowered = raw.toLowerCase();
+    return lowered === "hibernate" ? "hibernate" : "suspend";
+  }
+
   _cooldownRemainingMs() {
     const cooldownMs = Math.max(1, Number(this.cooldownMinutes || 10)) * 60 * 1000;
     if (!this._lastActionTime) return 0;
@@ -262,8 +278,18 @@ class BatterySleepApplet extends Applet.TextApplet {
     return true;
   }
 
-  _performAction(percent) {
-    const action = this._normalizedAction();
+  _shouldForceCriticalAction(percent, status) {
+    if (!this.forceCritical) return false;
+    if (this._normalizedAction() !== "alert") return false;
+    const criticalThreshold = Number(this.criticalThreshold || 5);
+    if (percent > criticalThreshold) return false;
+    if (this.onlyDischarging && status !== "Discharging") return false;
+    if (this._cooldownRemainingMs() > 0) return false;
+    return true;
+  }
+
+  _performAction(percent, overrideAction) {
+    const action = overrideAction || this._normalizedAction();
     if (action === "alert") {
       this._lastActionTime = Date.now();
       return;
@@ -387,6 +413,11 @@ class BatterySleepApplet extends Applet.TextApplet {
 
     if (this._suppressNextAction) {
       this._suppressNextAction = false;
+      return;
+    }
+
+    if (this._shouldForceCriticalAction(info.percent, info.status)) {
+      this._performAction(info.percent, this._normalizedCriticalAction());
       return;
     }
 
