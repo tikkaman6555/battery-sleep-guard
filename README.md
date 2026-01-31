@@ -5,6 +5,7 @@ Monitors battery level and triggers suspend/hibernate/alert at a configured thre
 ## Features
 - Threshold-based action (Suspend / Hibernate / Alert only)
 - Optional popup alert with countdown
+- Optional critical-level forced sleep/hibernate when in Alert-only mode
 - Cooldown to avoid repeated triggers
 - Right-click menu with quick controls and cooldown indicator
 - Built-in “Fix deep sleep” button in applet settings
@@ -32,6 +33,9 @@ Open Cinnamon Settings → Applets → Battery Sleep Guard.
 - **Show popup alert before action**: Blocking dialog with countdown and buttons.
 - **Popup countdown seconds**: Length of the popup countdown.
 - **Only act while discharging**: Ignore threshold while charging/full.
+- **Force sleep/hibernate at critical threshold (Alert only)**: If enabled and Action is Alert only, a critical battery level will still trigger sleep/hibernate.
+- **Critical threshold percentage**: Battery % at or below which the critical action triggers.
+- **Critical action**: Suspend or Hibernate at the critical threshold.
 - **Fix deep sleep** (button): Applies the deep sleep fix via admin prompt; reboot required.
 
 ### Notification vs Popup Alert
@@ -39,7 +43,7 @@ Open Cinnamon Settings → Applets → Battery Sleep Guard.
 - **Popup alert**: blocking dialog with countdown and buttons to cancel or trigger immediately
 
 ### Alert-only mode
-If Action is **Alert only**, the popup is informational and no suspend/hibernate occurs.
+If Action is **Alert only**, the popup is informational and no suspend/hibernate occurs, unless **Force sleep/hibernate at critical threshold (Alert only)** is enabled.
 
 ## Troubleshooting
 If the applet doesn’t show:
