@@ -1,5 +1,5 @@
 {
-  "uuid": "battery-sleep@kkrieg",
+  "uuid": "battery-sleep@tikkaman6555",
   "name": "Battery Sleep Guard",
   "description": "Monitors battery level and suspends/hibernates at a threshold.",
   "icon": "battery",

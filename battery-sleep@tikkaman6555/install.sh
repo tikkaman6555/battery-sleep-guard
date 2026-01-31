@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APPLET_DIR_NAME="battery-sleep@kkrieg"
+APPLET_DIR_NAME="battery-sleep@tikkaman6555"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEST_ROOT="$HOME/.local/share/cinnamon/applets"
 DEST_DIR="$DEST_ROOT/$APPLET_DIR_NAME"
@@ -47,7 +47,10 @@ if [[ -d "$DEST_DIR/$APPLET_DIR_NAME" ]]; then
 fi
 
 chmod +x "$DEST_DIR/install.sh" || true
-chmod +x "$DEST_DIR/fix-mint-sleep-wake-deep.sh" || true
+chmod +x "$DEST_DIR/suspend-fix/apply.sh" || true
+chmod +x "$DEST_DIR/suspend-fix/analyze_suspend.sh" || true
+chmod +x "$DEST_DIR/suspend-fix/install_smart_resume_hook.sh" || true
+chmod +x "$DEST_DIR/suspend-fix/install_force_s2idle_hook.sh" || true
 
 # Clear Cinnamon applet cache to ensure changes are picked up,
 # but preserve existing settings across Cinnamon restarts.
@@ -74,6 +77,6 @@ Next:
 - Configure threshold/action/interval in the applet settings.
 -----
 Reload Cinnamon (Alt+F2, then r).
-Clear the applet cache: remove ~/.config/cinnamon/spices/battery-sleep@kkrieg, then reinstall.
+Clear the applet cache: remove ~/.config/cinnamon/spices/battery-sleep@tikkaman6555, then reinstall.
 
 EOF

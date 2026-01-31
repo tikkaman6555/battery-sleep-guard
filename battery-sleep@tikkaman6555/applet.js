@@ -48,7 +48,7 @@ class BatterySleepApplet extends Applet.TextApplet {
       this._updateMenuUi();
     });
 
-    this.set_applet_tooltip("Battery Sleep Guard");
+    this.set_applet_tooltip("Battery Sleep Guard — click: menu • double-click: settings");
     this._updateLabel("...");
     this._reschedule();
   }
@@ -277,7 +277,7 @@ class BatterySleepApplet extends Applet.TextApplet {
   }
 
   _runDeepSleepFix() {
-    const scriptPath = `${this._appletPath}/fix-mint-sleep-wake-deep.sh`;
+    const scriptPath = `${this._appletPath}/suspend-fix/apply.sh`;
     Util.spawnCommandLine(`pkexec bash "${scriptPath}"`);
   }
 

@@ -85,8 +85,8 @@
   },
   "fix_deep_sleep": {
     "type": "button",
-    "description": "Fix deep sleep",
+    "description": "Install suspend/resume fix",
     "callback": "on_fix_deep_sleep",
-    "tooltip": "Apply the deep sleep fix (requires admin password)."
+    "tooltip": "Runs suspend-fix/apply.sh to install suspend/resume hooks (requires admin password)."
   }
 }
