@@ -1,4 +1,4 @@
-# hibrear
+# Battery Sleep Guard
 
 A small Linux Mint / Cinnamon helper repo.
 
