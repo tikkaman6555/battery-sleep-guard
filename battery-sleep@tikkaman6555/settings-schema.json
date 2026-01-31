@@ -66,10 +66,10 @@
     "description": "Force sleep/hibernate at critical threshold when action is Alert only"
   },
   "critical_threshold": {
-    "type": "spinbutton",
+    "type": "scale",
     "default": 5,
-    "min": 1,
-    "max": 20,
+    "min": 3,
+    "max": 10,
     "step": 1,
     "units": "%",
     "description": "Critical threshold percentage"
