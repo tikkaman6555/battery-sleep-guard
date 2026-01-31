@@ -12,7 +12,7 @@ What it does (safe + reversible):
 - Runs update-grub and systemctl daemon-reload
 
 Run:
-  sudo bash fix-mint-sleep-wake-deep.sh
+  sudo bash scripts/fix-mint-sleep-wake-deep.sh
 
 After running, reboot and test suspend/resume.
 
@@ -55,6 +55,25 @@ SuspendMode=deep
 CONF
 
 echo "Wrote /etc/systemd/sleep.conf.d/99-force-deep.conf"
+
+
+# 1b) Add systemd service to restart display manager on wake
+# This can help if the display server / graphics driver does not resume correctly.
+cat > /etc/systemd/system/resume-fix-display.service <<'SERVICE'
+[Unit]
+Description=Restart display manager after resume
+After=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'sleep 5 && systemctl restart display-manager.service'
+
+[Install]
+WantedBy=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+SERVICE
+
+systemctl enable resume-fix-display.service
+echo "Wrote and enabled /etc/systemd/system/resume-fix-display.service"
 
 # 2) Add kernel parameter via GRUB
 if [[ ! -f /etc/default/grub ]]; then
@@ -142,3 +161,4 @@ echo
 echo "If something goes wrong, rollback:" 
 echo "- cp -a $backup /etc/default/grub && update-grub"
 echo "- rm -f /etc/systemd/sleep.conf.d/99-force-deep.conf && systemctl daemon-reload"
+echo "- systemctl disable resume-fix-display.service && rm -f /etc/systemd/system/resume-fix-display.service"
