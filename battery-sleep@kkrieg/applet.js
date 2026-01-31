@@ -97,15 +97,24 @@ class BatterySleepApplet extends Applet.TextApplet {
     this.menu.addMenuItem(this._actionHeaderItem);
 
     this._actionSuspendItem = new PopupMenu.PopupMenuItem("Suspend");
-    this._actionSuspendItem.connect("activate", () => this.settings.setValue("action", "suspend"));
+    this._actionSuspendItem.connect("activate", () => {
+      this.settings.setValue("action", "suspend");
+      this._updateMenuUi();
+    });
     this.menu.addMenuItem(this._actionSuspendItem);
 
     this._actionHibernateItem = new PopupMenu.PopupMenuItem("Hibernate");
-    this._actionHibernateItem.connect("activate", () => this.settings.setValue("action", "hibernate"));
+    this._actionHibernateItem.connect("activate", () => {
+      this.settings.setValue("action", "hibernate");
+      this._updateMenuUi();
+    });
     this.menu.addMenuItem(this._actionHibernateItem);
 
     this._actionAlertItem = new PopupMenu.PopupMenuItem("Alert only");
-    this._actionAlertItem.connect("activate", () => this.settings.setValue("action", "alert"));
+    this._actionAlertItem.connect("activate", () => {
+      this.settings.setValue("action", "alert");
+      this._updateMenuUi();
+    });
     this.menu.addMenuItem(this._actionAlertItem);
 
     this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
@@ -132,9 +141,9 @@ class BatterySleepApplet extends Applet.TextApplet {
 
     if (this._actionSuspendItem && this._actionHibernateItem && this._actionAlertItem) {
       const action = this._normalizedAction();
-      this._actionSuspendItem.setOrnament(PopupMenu.OrnamentType.DOT, action === "suspend");
-      this._actionHibernateItem.setOrnament(PopupMenu.OrnamentType.DOT, action === "hibernate");
-      this._actionAlertItem.setOrnament(PopupMenu.OrnamentType.DOT, action === "alert");
+      this._setRadioOrnament(this._actionSuspendItem, action === "suspend");
+      this._setRadioOrnament(this._actionHibernateItem, action === "hibernate");
+      this._setRadioOrnament(this._actionAlertItem, action === "alert");
     }
 
     if (this._cooldownItem) {
@@ -145,6 +154,16 @@ class BatterySleepApplet extends Applet.TextApplet {
   _thresholdToSlider(value) {
     const clamped = Math.max(1, Math.min(50, Number(value || 15)));
     return clamped / 50;
+  }
+
+  _setRadioOrnament(item, selected) {
+    if (!item) return;
+    if (typeof item.setOrnament !== "function") return;
+    if (item.setOrnament.length >= 2) {
+      item.setOrnament(PopupMenu.OrnamentType.DOT, selected);
+    } else {
+      item.setOrnament(selected ? PopupMenu.OrnamentType.DOT : PopupMenu.OrnamentType.NONE);
+    }
   }
 
   _sliderToThreshold(value) {
@@ -221,7 +240,7 @@ class BatterySleepApplet extends Applet.TextApplet {
   _modeFlags() {
     const action = this._normalizedAction();
     const actionFlag = action === "alert" ? "A" : (action === "hibernate" ? "H" : "S");
-    const alertFlag = (this.popupAlert && action !== "alert") ? "A" : "";
+    const alertFlag = (this.popupAlert && action !== "alert") ? "+P" : "";
     const flags = `${actionFlag}${alertFlag}`;
     return flags.length ? flags : "S";
   }
