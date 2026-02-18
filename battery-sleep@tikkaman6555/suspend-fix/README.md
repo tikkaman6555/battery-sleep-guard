@@ -4,16 +4,16 @@ This folder contains suspend/resume helper scripts (systemd system-sleep hooks) 
 
 ## One-shot (recommended)
 
-Default (install smart resume):
+Default (install smart resume + force s2idle):
 
 ```bash
 sudo ./apply.sh
 ```
 
-Include `s2idle` forcing (optional):
+Skip `s2idle` if you don't want it:
 
 ```bash
-sudo ./apply.sh --s2idle
+sudo ./apply.sh --no-s2idle
 ```
 
 Skip smart-resume (only force `s2idle`):
@@ -51,3 +51,7 @@ sudo ./install_force_s2idle_hook.sh
 
 - If you see “double login”, it’s almost always because something restarts `display-manager` after resume.
   The `cleanup.sh` script disables/masks `resume-fix-display.service` if present.
+
+- The `fix-smart-resume` hook now includes best-effort Wayland handling (GNOME/sway/hyprland). It attempts a session DBus "poke" and compositor-specific DPMS/refresh commands without restarting the display manager.
+
+- Added a Cinnamon-specific screensaver "poke" (uses `cinnamon-screensaver-command --poke` if available) to improve resume reliability on Linux Mint / Cinnamon (X11).

@@ -87,6 +87,6 @@
     "type": "button",
     "description": "Install suspend/resume fix",
     "callback": "on_fix_deep_sleep",
-    "tooltip": "Runs suspend-fix/apply.sh to install suspend/resume hooks (requires admin password)."
+    "tooltip": "Runs suspend-fix/apply.sh in a new terminal to install suspend/resume hooks (requires admin password)."
   }
 }

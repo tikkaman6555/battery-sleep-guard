@@ -158,6 +158,54 @@ try_wake_x11() {
             log "post: xrandr --auto (user=$user display=$display xauth=$xauth_user)"
         fi
     fi
+
+    # Cinnamon-specific: try the cinnamon-screensaver CLI to nudge the screen/saver (no-op if not present)
+    if command -v cinnamon-screensaver-command >/dev/null 2>&1; then
+        if [ -n "$xauth_root" ]; then
+            DISPLAY="$display" XAUTHORITY="$xauth_root" cinnamon-screensaver-command --poke >/dev/null 2>&1 || true
+            log "post: cinnamon-screensaver-command --poke (root display=$display)"
+        elif [ -n "$xauth_user" ]; then
+            runuser -l "$user" -c "DISPLAY='$display' XAUTHORITY='$xauth_user' cinnamon-screensaver-command --poke" >/dev/null 2>&1 || true
+            log "post: cinnamon-screensaver-command --poke (user=$user display=$display)"
+        fi
+    fi
+}
+
+try_wake_wayland() {
+    # Best-effort Wayland handling: try DBus screen-saver activity and compositor helpers (GNOME, sway).
+    local user="$1"
+    local display="$2"
+    local locked_hint="${3:-unknown}"
+
+    if [ "$locked_hint" = "yes" ]; then
+        log "post: wayland session locked (LockedHint=yes); skipping Wayland poke"
+        return 0
+    fi
+
+    # Try to simulate user activity on the session DBus (GNOME/Mutter/others expose org.freedesktop.ScreenSaver)
+    if command -v gdbus >/dev/null 2>&1; then
+        runuser -l "$user" -c "gdbus call --session --dest org.freedesktop.ScreenSaver --object-path /org/freedesktop/ScreenSaver --method org.freedesktop.ScreenSaver.SimulateUserActivity" >/dev/null 2>&1 || true
+        log "post: wayland gdbus SimulateUserActivity (user=$user)"
+    fi
+
+    # Compositor-specific: sway (wlroots) - request outputs / DPMS on
+    if command -v swaymsg >/dev/null 2>&1; then
+        runuser -l "$user" -c "swaymsg 'output * dpms on' >/dev/null 2>&1 || true" || true
+        log "post: swaymsg dpms on (user=$user)"
+    fi
+
+    # Hyprland: try hyprctl dispatch dpms on (best-effort)
+    if command -v hyprctl >/dev/null 2>&1; then
+        runuser -l "$user" -c "hyprctl dispatch dpms on >/dev/null 2>&1 || true" || true
+        log "post: hyprctl dpms on (user=$user)"
+    fi
+
+    # Fallback: try to ping the compositor (gnome-shell) via DBus Eval to force re-exec (very safe: do not restart)
+    if command -v gdbus >/dev/null 2>&1; then
+        # Try to call org.gnome.Shell.Eval to perform a no-op evaluate; ignore failures
+        runuser -l "$user" -c "gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.gnome.Shell.Eval \"global.log('resume-poke')\"" >/dev/null 2>&1 || true
+        log "post: wayland gnome-shell Eval poke (user=$user)"
+    fi
 }
 
 case "${1:-}" in
@@ -233,6 +281,9 @@ case "${1:-}" in
             if [ "$sess_type" = "x11" ] && echo "$sess_display" | grep -Eq '^:'; then
                 sleep 0.5
                 try_wake_x11 "$sess_user" "$sess_display" "$sess_locked"
+            elif [ "$sess_type" = "wayland" ]; then
+                sleep 0.5
+                try_wake_wayland "$sess_user" "$sess_display" "$sess_locked"
             fi
         fi
 

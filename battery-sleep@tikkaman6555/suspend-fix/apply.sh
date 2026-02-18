@@ -12,13 +12,14 @@ Usage:
   sudo ./final/apply.sh [options]
 
 Options:
-  --s2idle          Also install the force-s2idle hook
+  --no-s2idle        Skip installing the force-s2idle hook (s2idle is installed by default)
   --no-smart-resume  Skip installing the smart resume hook
   -h, --help         Show this help
 
 Examples:
-  sudo ./final/apply.sh
-  sudo ./final/apply.sh --s2idle
+  sudo ./final/apply.sh             # installs smart-resume + force-s2idle (recommended)
+  sudo ./final/apply.sh --no-s2idle # install only smart-resume
+  sudo ./final/apply.sh --no-smart-resume --no-s2idle
 EOF
 }
 
@@ -30,12 +31,16 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 DO_SMART_RESUME=1
-DO_S2IDLE=0
+# Default: enable force-s2idle as it improves resume for many machines
+DO_S2IDLE=1
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --s2idle)
       DO_S2IDLE=1
+      ;;
+    --no-s2idle)
+      DO_S2IDLE=0
       ;;
     --no-smart-resume)
       DO_SMART_RESUME=0

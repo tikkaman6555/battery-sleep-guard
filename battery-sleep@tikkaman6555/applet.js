@@ -278,6 +278,36 @@ class BatterySleepApplet extends Applet.TextApplet {
 
   _runDeepSleepFix() {
     const scriptPath = `${this._appletPath}/suspend-fix/apply.sh`;
+
+    // Try to open the installer in a new terminal (best-effort). Falls back to pkexec.
+    const terminals = [
+      'gnome-terminal', 'x-terminal-emulator', 'xfce4-terminal', 'konsole',
+      'mate-terminal', 'tilix', 'alacritty', 'kitty', 'terminator', 'xterm'
+    ];
+
+    for (let t of terminals) {
+      try {
+        const path = GLib.find_program_in_path(t);
+        if (!path) continue;
+
+        let cmd = '';
+        if (t === 'gnome-terminal') {
+          cmd = `gnome-terminal -- bash -c 'pkexec bash "${scriptPath}"; echo; read -p "Press Enter to close..."'`;
+        } else if (t === 'konsole') {
+          cmd = `konsole -e bash -c 'pkexec bash "${scriptPath}"; echo; read -p "Press Enter to close..."'`;
+        } else {
+          // Generic: use -e to execute a bash -c which keeps the terminal open after completion
+          cmd = `${t} -e bash -c 'pkexec bash "${scriptPath}"; echo; read -p "Press Enter to close..."'`;
+        }
+
+        Util.spawnCommandLine(cmd);
+        return;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    // Fallback: run with pkexec (may show GUI auth prompt)
     Util.spawnCommandLine(`pkexec bash "${scriptPath}"`);
   }
 
